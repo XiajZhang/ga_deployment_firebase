@@ -82,7 +82,7 @@ The idea is that, in the final deployment, we’ll deploy a server that will sit
 
 The following 3 files are the most important to work with:
 
-* GA_database.py - Contains all the functions used to communicate with the firebase database
+* GA_database.py - Contains all the functions used to communicate with the firebase database. We use pyrebase (python library for firebase) to communicate with the database. 
 * app.py - Contains a minimal flask server that uses the functions in GA_database.py to communicate with firebase
 * sample_client.py - An example client that uses that makes GET and POST requests to the app to communicate with the database
 
@@ -105,7 +105,7 @@ As mentioned earlier, there are 3 endpoint that are already implemented.
 
 **How do I start diving into the code?**
 
-I’d suggest first looking at app.py. See a given endpoint and check the functions its calling in GA_database.py. Once, you’re familiar with the flow. You can check example_client.py to see how I’ve made the request in python. A similar HTTP request can be made from any language.
+I’d suggest first looking at app.py. See a given endpoint and check the functions its calling in GA_database.py. Once, you’re familiar with the flow, you can check example_client.py to see how I’ve made the request in python. A similar HTTP request can be made from any language.
 
 Once you’re comfortable, you can start adding your own endpoints that talk to firebase using different functions in GA_database.py
 
