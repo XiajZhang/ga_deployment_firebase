@@ -93,7 +93,8 @@ The data we would like to store is given here in the “Georgia Deployment Tasks
 Since, a large number of people are going to be using the system, we should come up with some rules to abide by. 
 
 * As a start, I’ve created 4 endpoints. The endpoints always receive data in JSON format and return data in JSON format. We should continue this tradition! :) A sample json can be found in sample_client.py.
-* Since, its a NoSQL database, we should ensure we’re using the same keys to index the data. I’ve used the exact names as given the worksheet on PRG team drive (I’ve talked about it in the next sentence!) 
+* Since, its a NoSQL database, we should ensure we’re using the same keys to index the data. I’ve used the exact names as given the worksheet on PRG team drive. 
+
 
 ## Current functionality
 
