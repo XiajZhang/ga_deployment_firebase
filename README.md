@@ -55,7 +55,7 @@ Create a folder called cred:
 mkdir cred
 ```
 
-***Note: For the next step we’ll download a config file and private key. Keep these very very secret and NEVER share them with anyone. ***
+**Note: For the next step we’ll download a config file and private key. Keep these very very secret and NEVER share them with anyone.**
 
 Access to files: https://www.dropbox.com/sm/password?cont=https%3A%2F%2Fwww.dropbox.com%2Fsh%2Fqn7ocazff2o61gm%2FAACLdxDcy5e8FcqHvsi3eYnRa%3Fdl%3D0&content_id=AK3fNFdNkSePR0h6fDBwxG2P_pKEoHTQobk
 
