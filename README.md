@@ -4,12 +4,15 @@
 Hi all, welcome to the repo for connecting your apps/games to the firebase database. This repo is mostly meant for the georgia deployment but you can take parts of it to develop other apps/games not relevant to the deployment. My hope is that this will become a living breathing repo over the next few months as we move towards the finish line!
 
 **But Ishaan, what is firebase? Why should we use this?**
-Great question! Think of firebase as a NoSQL database in the cloud that works in real-time. Very soon we’ll have a large number of robots and tablets working autonomously alongside humans. These devices will constantly will need to log data. We need read and write to any database we use to be **secure, real-time and avoid conflicts. Hence, firebase! **One of the coolest features of firebase is the ability to get callback notifications everytime the database is updated. Hopefully, things will become clearer once we start working with it.
+
+Great question! Think of firebase as a NoSQL database in the cloud that works in real-time. Very soon we’ll have a large number of robots and tablets working autonomously alongside humans. These devices will constantly will need to log data. We need read and write to any database we use to be **secure, real-time and avoid conflicts. Hence, firebase!** One of the coolest features of firebase is the ability to get callback notifications everytime the database is updated. Hopefully, things will become clearer once we start working with it.
 
 ## Installation and Setup
 
 First install anaconda/miniconda for python 3.7 from here:
+
 **Miniconda: https://docs.conda.io/en/latest/miniconda.html**
+
 **Anaconda: https://www.anaconda.com/distribution/**
 
 Now clone the repository from here and cd into it:
@@ -60,10 +63,58 @@ Place both the files in the folder named “cred” that we just created.
 
 We’re now ready to start interacting with the firebase database!
 
+## Overview of architecture
+
+![Alt text](images/architecture.png?raw=true "Title")
+
+We have clients (robots/tablets/phone’s, laptops, etc) that make requests to a REST API hosted on a server. The server then interacts with the database and returns the requested data. 
+
+**Why do we have a server in the middle? Why not directly talk to the database?**
+
+* **Security:** We don’t want the database private keys to live on all machines. In this case, only the server has access to the database keys and that’s all we need to protect.
+* **Faster development cycles:** Having a server with a REST API encapsulates people working in different environments (javascript, python, Unity, etc) from having to learn how to interact with the firebase database in their language. 
+* **Reduces errors and redundancy:** The same code to update session information implemented in different languages by different people can result in a very brittle system causing errors.
 
 
+The idea is that, in the final deployment, we’ll deploy a server that will sit in a given school and accept connections from authenticated clients. We can brainstorm other ways of making this more secure. 
+
+## Development
+
+The following 3 files are the most important to work with:
+
+* GA_database.py - Contains all the functions used to communicate with the firebase database
+* app.py - Contains a minimal flask server that uses the functions in GA_database.py to communicate with firebase
+* sample_client.py - An example client that uses that makes GET and POST requests to the app to communicate with the database
+
+The data we would like to store is given here in the “Georgia Deployment Tasks & Schedule” worksheet on PRG team drive. Please refer to the “Database” tab in it. 
+
+Since, a large number of people are going to be using the system, we should come up with some rules to abide by. 
+
+* As a start, I’ve created 3 endpoints. The endpoints always receive data in JSON format and return data in JSON format. We should continue this tradition! :) A sample json can be found in sample_client.py.
+* Since, its a NoSQL database, we should ensure we’re using the same keys to index the data. I’ve used the exact names as given the worksheet on PRG team drive (I’ve talked about it in the next sentence!) 
+
+## Current functionality
+
+As mentioned earlier, there are 3 endpoint that are already implemented. 
 
 
+* The first endpoint updates/adds data for a given subject to the database. If the data is not present, it adds the data sent to the database. The server accepts a json with subject information by default. 
+* The second endpoint returns the “word_list” for a given subject. I obviously believe we’d want to request a lot of other entries from the database. This would really depend on what data you need for your app. Moving forward, I believe it should be fairly straightforward to request any kind of data following the given example.
+* The third endpoint simply deletes all of the data for a given subject.
 
+
+**How do I start diving into the code?**
+
+I’d suggest first looking at app.py. See a given endpoint and check the functions its calling in GA_database.py. Once, you’re familiar with the flow. You can check example_client.py to see how I’ve made the request in python. A similar HTTP request can be made from any language.
+
+Once you’re comfortable, you can start adding your own endpoints that talk to firebase using different functions in GA_database.py
+
+## Future work
+
+* Make flask work over https
+* Figure out the most secure way to deploy the server
+
+
+Feel free to contact me with any questions. Happy coding!
 
 
