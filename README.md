@@ -59,6 +59,8 @@ mkdir cred
 
 Access to files: https://www.dropbox.com/sm/password?cont=https%3A%2F%2Fwww.dropbox.com%2Fsh%2Fqn7ocazff2o61gm%2FAACLdxDcy5e8FcqHvsi3eYnRa%3Fdl%3D0&content_id=AK3fNFdNkSePR0h6fDBwxG2P_pKEoHTQobk
 
+The password can be found in the Group info doc. Requires salt.
+
 Place both the files in the folder named “cred” that we just created.
 
 We’re now ready to start interacting with the firebase database!
