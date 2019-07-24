@@ -25,15 +25,6 @@ def add_update_subject():
 	else:
 		return Response(return_message, 206)
 
-@app.route("/delete_data", methods=["POST"])
-def delete_data():
-	data = json.loads(request.data)
-	subject_id = data["subject_id"]
-	db.remove_subject(subject_id)
-
-	return Response("Successful", 200)
-
-
 @app.route("/get_subject_word_list_data", methods=["GET"])
 def get_subject_word_list_data():
 	data = request.args
@@ -41,6 +32,26 @@ def get_subject_word_list_data():
 	word_list = db.get_subject_word_list(subject_id)
 	data_to_send = {"subject_id": subject_id, "word_list": word_list}
 	return jsonify(data_to_send)
+
+
+@app.route("/add_session_data", methods=["POST"])
+def add_session_data():
+	data = json.loads(request.data)
+	subject_id = data["subject_id"]
+	session_arr = data["session"]
+	try:
+		db.add_session_data(subject_id, session_arr)
+		return Response("Successful", 200)
+	except:
+		return Response("Bad request", 400)
+
+@app.route("/delete_data", methods=["POST"])
+def delete_data():
+	data = json.loads(request.data)
+	subject_id = data["subject_id"]
+	db.remove_subject(subject_id)
+
+	return Response("Successful", 200)
 
 if __name__ == '__main__':
 	app.run(debug=True)

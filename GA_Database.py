@@ -10,12 +10,16 @@ class DB():
 							2: "word_list info missing", 
 							3: "session info missing"}
 
+	"""authenticate connection to the firebase database. Uses config file and key"""
 	def authenticate(self, config_data):
 		self.firebase = pyrebase.initialize_app(config_data)
 		self.db = self.firebase.database()
 		print("authenticated")
 
 
+	"""Adds data for a subject or multiple subjects. Any time a session field exists in the JSON, 
+	it is appended to the existing session data. Sessions are ordered by timestamps to avoid conflicting
+	pushes or updates"""
 	def add_or_update_data(self, subject):
 		missing_values = []
 		subject_keys = set(subject.keys())
@@ -58,14 +62,16 @@ class DB():
 			return 0, total_missing_info
 		return 1, total_missing_info
 
-
+	"""Add session information for a given subject"""
 	def add_session_data(self, subject_id, session_data_arr):
 		for session in session_data_arr:
 			self.db.child(subject_id).child("session").push(session) 
 
+	"""Returns word_list for a given subject. Returns None if subject doesn't exist"""
 	def get_subject_word_list(self, subject_id):
 		val = self.db.child(subject_id).child("word_list").get().val()
 		return val
 
+	"""Removes all data pertaining to a given subject"""
 	def remove_subject(self, subject_id):
 		self.db.child(subject_id).remove()
