@@ -2,89 +2,66 @@ import requests
 import json
 
 
-############################ END POINT (add_update_subject) ######################
-"""add or update data for a given subject"""
-def add_update_subject_request():
+def create_endpoint():
 	student = {}
 	student["subject_id"] = "p001"
-	student["condition"] = "affect"
-	student["assessment"] = {"type": "pre", 
+	data = {}
+	data["condition"] = "affect"
+	data["assessment"] = {"type": "pre", 
 							"date-time":"09/23/2019", 
 							"ppvt": "something", 
 							"targetVocab": "something_new"}
-	student["word_list"] = ["abc", "def"]
 
-	student["session"] = [{"number": 3,
-							"date": "09/08/2019",
-							"start_time": "98878897",
-							"end_time": "874875759",
-							"interrupt": {"number": 0,
-										  "reason": "things went wrong"}
-							},
+	student["data"] = data
+	student["path"] = "/"
 
-							{"number": 3,
-							"date": "09/08/2019",
-							"start_time": "98878897",
-							"end_time": "874875759",
-							"interrupt": {"number": 0,
-										  "reason": "things went wrong"}
-							}]
-
-	student["session"][0]["robotID"] = 3
-	student["session"][0]["robot_pre_state"] = "health"
-	student["session"][0]["robot_post_state"] = "happy"
-	student["session"][0]["chitchat"] = {"question": "what's your fav color?", "response": "blue"}
-	student["session"][0]["activity"] = {"type": "storybook", "start_time": "98734", "end_time": "83464"}
+	r = requests.post("http://localhost:5000/create", data=json.dumps(student))
+	print(r.text)
 
 
-	body = student
+def update_nodes_endpoint():
+	student = {}
+	student["subject_id"] = "p001"
+	data = {}
+	data["ppvt"] = "something else"
 
-	requests.post("http://localhost:5000/add_update_subject", data=json.dumps(body))
+	student["data"] = data
+	student["path"] = "/assessment"
 
+	requests.post("http://localhost:5000/update", data=json.dumps(student))
 
-############################ END POINT (get_subject_word_list_data) ######################
-"""get word list for a given subject"""
-def get_subject_word_list_request():
-	data = {"subject_id": "p001"}
+def update_replace_endpoint():
+	student = {}
+	student["subject_id"] = "p001"
+	data = {}
+	data["ppvt"] = "something else"
 
-	r = requests.get("http://localhost:5000/get_subject_word_list_data", params=data)
-	response_data = r.json()
-	print(response_data["word_list"])
+	student["data"] = data
+	student["path"] = "/assessment"
 
-
-
-"""add session data"""
-def add_session_data_request():
-	data = {"subject_id": "p001", "session": [{"number": 3,
-							"date": "09/08/2019",
-							"start_time": "98878897",
-							"end_time": "874875759",
-							"interrupt": {"number": 0,
-										  "reason": "things went wrong"}
-							},
-
-							{"number": 3,
-							"date": "09/08/2019",
-							"start_time": "98878897",
-							"end_time": "874875759",
-							"interrupt": {"number": 0,
-										  "reason": "things went wrong"}
-							}]}
+	requests.post("http://localhost:5000/update_replace", data=json.dumps(student))
 
 
-	requests.post("http://localhost:5000/add_session_data", data=json.dumps(data))
-
-############################ END POINT (delete_data) ######################
-"""delete data for a given subject"""
-def remove_subject_data():
-	body = {"subject_id": "p001"}
-	requests.post("http://localhost:5000/delete_data", data=json.dumps(body))
-
-
+def get_nodes_endpoint():
+	student = {}
+	student["subject_id"] = "p001"
+	student["path"] = "/condition"
+	r = requests.get("http://localhost:5000/get_nodes", params=student)
+	print(student)
+	print(r.text)
 
 
-add_update_subject_request()
-get_subject_word_list_request()
-add_session_data_request()
-remove_subject_data()
+def delete_nodes_endpoint():
+	student = {}
+	student["subject_id"] = "p001"
+	student["path"] = "/assessment/ppvt"
+	r = requests.post("http://localhost:5000/delete_nodes", data=json.dumps(student))
+	print(r.text)
+
+
+# create_endpoint()
+update_nodes_endpoint()
+# update_replace_endpoint()
+# get_nodes_endpoint()
+# delete_nodes_endpoint()
 

@@ -92,19 +92,104 @@ The data we would like to store is given here in the “Georgia Deployment Tasks
 
 Since, a large number of people are going to be using the system, we should come up with some rules to abide by. 
 
-* As a start, I’ve created 4 endpoints. The endpoints always receive data in JSON format and return data in JSON format. We should continue this tradition! :) A sample json can be found in sample_client.py.
+* As a start, I’ve created 5 endpoints. 
 * Since, its a NoSQL database, we should ensure we’re using the same keys to index the data. I’ve used the exact names as given the worksheet on PRG team drive. 
 
 
 ## Current functionality
 
-As mentioned earlier, there are 4 endpoints that are already implemented. 
+As mentioned earlier, there are 5 endpoints that are already implemented. A sample on how to call each endpoint is given in sample_client.py
+
+```
+/create - POST
+```
+Arguments: subject_id, data, path
+
+Creates new nodes (key value pairs) in the database
+
+```
+sample data passed to the endpoint:
+{'subject_id': 'p001', 
+'data': {'condition': 'affect', 
+'assessment': {'type': 'pre', 'date-time': '09/23/2019', 'ppvt': 'something', 
+'targetVocab': 'something_new'}}, 
+'path': '/'}
+```
 
 
-* The first endpoint updates/adds data for a given subject to the database. If the data is not present, it adds the data sent to the database. The server accepts a json with subject information by default. 
-* The second endpoint returns the “word_list” for a given subject. I obviously believe we’d want to request a lot of other entries from the database. This would really depend on what data you need for your app. Moving forward, I believe it should be fairly straightforward to request any kind of data following the given example.
-* The third endpoint adds session data for a given subject.
-* The last endpoint simply deletes all of the data for a given subject.
+
+
+subject_id: id of the subject
+
+data: Data to write
+
+path: path to write data to. Subject_id is not a part of the path. The root of the path starts at data. In the above example, after having written the data, when you want to create a new node (key-value pair) under assessment, you would give the path as /assessment. 
+
+Note: the path must be to the node under which you would like to add a/multiple new key-value pair/pairs.
+
+```
+/update - POST
+```
+Arguments: subject_id, data, path
+
+Updates the value of a given key-value pair. For example, to update the value of ppvt (key), you would send the following data:
+
+```
+sample data passed to the endpoint:
+{'subject_id': 'p001', 
+'data': 
+	{'ppvt': 'something else'}, 
+'path': '/assessment'}
+
+```
+
+
+```
+/update_replace - POST
+```
+Arguments: subject_id, data, path
+
+This endpoint removes all the data under a given node and replaces it with the data passed to it. 
+
+For example, if you would like to make the value of ppvt (in the above examples) to "something else" and remove all other entries (type, date-time, targetVocab), you would pass the following data:
+
+```
+sample data passed to the endpoint:
+{'subject_id': 'p001', 
+'data': 
+	{'ppvt': 'something else'}, 
+'path': '/assessment'}
+
+```
+
+```
+/get_nodes - GET
+```
+Parameters: subject_id, path
+Returns the data corresponding to a given key. If you want all data pertaining to a subject, path = "/". If you want data corresponding to ppvt, path = "/ppvt". 
+
+```
+sample parameters passed to the endpoint:
+{'subject_id': 'p001',  
+'path': '/ppvt'}
+
+```
+
+```
+/delete_nodes - GET
+```
+
+Parameters: subject_id, path
+Deletes the data corresponding to a given key. If you want to delete all data pertaining to a subject, path = "/". If you want to delete data corresponding to ppvt, path = "/ppvt".
+
+```
+sample parameters passed to the endpoint:
+{'subject_id': 'p001',  
+'path': '/ppvt'}
+
+```
+
+
 
 **How do I start diving into the code?**
 

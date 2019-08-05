@@ -1,14 +1,15 @@
 import pyrebase
+import json
+from copy import deepcopy
+
+# def get_config_data(filename):
+# 	f = open(filename)
+# 	return json.load(f)
 
 class DB():
 	def __init__(self):
 		self.firebase = None
 		self.db = None
-
-		self.errorCodes = { 0: "condition info missing", 
-							1: "assessment info missing", 
-							2: "word_list info missing", 
-							3: "session info missing"}
 
 	"""authenticate connection to the firebase database. Uses config file and key"""
 	def authenticate(self, config_data):
@@ -16,62 +17,225 @@ class DB():
 		self.db = self.firebase.database()
 		print("authenticated")
 
+	def reset_db_ref(self):
+		self.db = self.firebase.database()
 
-	"""Adds data for a subject or multiple subjects. Any time a session field exists in the JSON, 
-	it is appended to the existing session data. Sessions are ordered by timestamps to avoid conflicting
-	pushes or updates"""
-	def add_or_update_data(self, subject):
-		missing_values = []
-		subject_keys = set(subject.keys())
+	def check_if_node_reachable(self, subject_id, nodes, data_on_server):
+		data_copy = deepcopy(data_on_server)
+		ref = self.db.child(subject_id)
+		for node in nodes:
+			try:
+				data_copy = data_copy[node]
+				ref = ref.child(node)
+			except:
+				return False, None, data_copy
+		return True, ref, data_copy
 
-		if "subject_id" in subject_keys:
-			subject_id = subject["subject_id"]
+
+
+	def update_replace_nodes(self, subject_id, path, data):
+		self.reset_db_ref()
+		if len(data.keys()) == 0:
+			return -1
 		else:
-			return -1, "missing info to access subject"
+			full_path = subject_id + path
+			nodes = full_path.split("/")
+			try:
+				nodes.remove("")
+			except:
+				pass
 
-		if "condition" in subject_keys:
-			self.db.child(subject_id).child("condition").set(subject["condition"])
+			###check if subject is present
+			curr_keys = self.db.shallow().get().val()
+			if curr_keys == None:
+				return "DB empty, create nodes first", -1
+
+			if subject_id not in curr_keys:
+				return "Subject id not present.", -1
+
+
+			####check if path node reachable
+
+			data_on_server = dict(self.db.child(subject_id).get().val())
+			node_reachable_bool, leaf_node_ref, data_at_leaf = self.check_if_node_reachable(subject_id, nodes[1:], data_on_server)
+			if not node_reachable_bool:	
+				return "Invalid path.", -1
+
+			try:
+				leaf_keys = data_at_leaf.keys()
+				for key in data.keys():
+					if key not in leaf_keys:
+						return "No valid key to update.", -1
+			except:
+				return "Path has some error. There is only a value at this path.", -1
+
+
+
+
+			leaf_node_ref.set(data)
+
+			return "Success", 1
+
+
+	def update_nodes(self, subject_id, path, data):
+		self.reset_db_ref()
+		if len(data.keys()) == 0:
+			return -1
 		else:
-			if self.db.child(subject_id).child("condition").get().val() == None:
-				missing_values.append(0)
+			full_path = subject_id + path
+			nodes = full_path.split("/")
+			try:
+				nodes.remove("")
+			except:
+				pass
+
+			###check if subject is present
+			curr_keys = self.db.shallow().get().val()
+
+			if curr_keys == None:
+				return "DB empty, create nodes first", -1
+
+			if subject_id not in curr_keys:
+				return "Subject id not present.", -1
 
 
-		if "assessment" in subject_keys:
-			self.db.child(subject_id).child("assessment").set(subject["assessment"])
+			####check if path node reachable
+
+			data_on_server = dict(self.db.child(subject_id).get().val())
+			node_reachable_bool, leaf_node_ref, data_at_leaf = self.check_if_node_reachable(subject_id, nodes[1:], data_on_server)
+			print(leaf_node_ref.path)
+
+			if not node_reachable_bool:	
+				return "Invalid path", -1
+
+			try:
+				leaf_keys = data_at_leaf.keys()
+				for key in data.keys():
+					if key not in leaf_keys:
+						return "One or more keys can't be updated because they are not present.", -1
+			except:
+				return "Path has some error. There is only a value at this path.", -1
+
+			leaf_node_ref.update(data)
+
+			return "Success", 1
+
+
+	def create_nodes(self, subject_id, path, data):
+		self.reset_db_ref()
+		if len(data.keys()) == 0:
+			return -1
 		else:
-			if self.db.child(subject_id).child("assessment").get().val() == None:
-				missing_values.append(1)
+			full_path = subject_id + path
+			nodes = full_path.split("/")
+			try:
+				nodes.remove("")
+			except:
+				pass
 
-		if "word_list" in subject_keys:
-			self.db.child(subject_id).child("word_list").set(subject["word_list"])
-		else:
-			if self.db.child(subject_id).child("word_list").get().val() == None:
-				missing_values.append(2)
+			###check if subject is present
 
-		if "session" in subject_keys:
-			self.add_session_data(subject_id, subject["session"])
-		else:
-			if self.db.child(subject_id).child("session").get().val() == None:
-				missing_values.append(3)
 
-		total_missing_info = ""
-		if len(missing_values) != 0:			
-			for i, missing_info in enumerate(missing_values):
-				total_missing_info += str(i+1) + ". " + self.errorCodes[missing_info] + "\n"
-			total_missing_info.strip()
-			return 0, total_missing_info
-		return 1, total_missing_info
+			curr_keys = self.db.shallow().get().val()
+			if curr_keys == None: 
+				if path == "/":
+					self.db.child(subject_id).set(data)
+					return "Success", 1
+				else:
+					return "No data in db, use path '/' to create node", -1
 
-	"""Add session information for a given subject"""
-	def add_session_data(self, subject_id, session_data_arr):
-		for session in session_data_arr:
-			self.db.child(subject_id).child("session").push(session) 
+			if subject_id not in curr_keys:
+				return "Subject id not present.", -1
 
-	"""Returns word_list for a given subject. Returns None if subject doesn't exist"""
-	def get_subject_word_list(self, subject_id):
-		val = self.db.child(subject_id).child("word_list").get().val()
-		return val
+						####check if path node reachable
 
-	"""Removes all data pertaining to a given subject"""
-	def remove_subject(self, subject_id):
-		self.db.child(subject_id).remove()
+			data_on_server = dict(self.db.child(subject_id).get().val())
+			node_reachable_bool, leaf_node_ref, data_at_leaf = self.check_if_node_reachable(subject_id, nodes[1:], data_on_server)
+			if not node_reachable_bool:	
+				return "Invalid path.", -1
+
+
+			try:
+				leaf_keys = data_at_leaf.keys()
+				for key in data.keys():
+					if key in leaf_keys:
+						return "Key with the same name already present. Can't add new node with the same name.", -1
+			except:
+				return "Path has some error. There is a value at this path. Try 1 level up.", -1
+
+
+			leaf_node_ref.update(data)
+
+			return "Success", 1
+
+
+	def get_nodes(self, subject_id, path):
+		self.reset_db_ref()
+		full_path = subject_id + path
+		nodes = full_path.split("/")
+		try:
+			nodes.remove("")
+		except:
+			pass
+
+		###check if subject is present
+		curr_keys = self.db.shallow().get().val()
+
+		if subject_id not in curr_keys:
+			return "Subject id not present.", -1
+
+		####check if path node reachable
+
+		data_on_server = dict(self.db.child(subject_id).get().val())
+		node_reachable_bool, leaf_node_ref, data_at_leaf = self.check_if_node_reachable(subject_id, nodes[1:], data_on_server)
+		if not node_reachable_bool:	
+			return "Invalid path.", -1
+
+		return data_at_leaf, 1
+
+	def delete_nodes(self, subject_id, path):
+		self.reset_db_ref()
+		full_path = subject_id + path
+		nodes = full_path.split("/")
+		try:
+			nodes.remove("")
+		except:
+			pass
+
+		###check if subject is present
+
+
+		curr_keys = self.db.shallow().get().val()
+
+		if subject_id not in curr_keys:
+			return "Subject id not present.", -1
+
+		####check if path node reachable
+
+		data_on_server = dict(self.db.child(subject_id).get().val())
+		node_reachable_bool, leaf_node_ref, data_at_leaf = self.check_if_node_reachable(subject_id, nodes[1:], data_on_server)
+		if not node_reachable_bool:	
+			return "Invalid path.", -1
+
+		leaf_node_ref.remove()
+		return "Success", 1
+
+
+
+# student = {}
+# student["subject_id"] = "p001"
+# data = {}
+# data["condition"] = "affect"
+# data["assessment"] = {"type": "pre", 
+# 						"date-time":"09/23/2019", 
+# 						"ppvt": "something", 
+# 						"targetVocab": "something_new"}
+
+# student["data"] = data
+
+# db = DB()
+# db.authenticate(get_config_data("cred/config.txt"))
+# print(db.create_nodes("p001", "/ujki", {"yup": {"something": "else"}}))
+# print(db.update_nodes("p001", "/", {"ishaan": "amazing"}))
+# print(db.create_nodes("p001", "/", {"ujki": {"jddn": "ishaan"}}))
+# print(db.get_nodes("p001", "/assessment/ppvt"))
