@@ -28,7 +28,8 @@ def update_nodes_endpoint():
 	student["data"] = data
 	student["path"] = "/assessment"
 
-	requests.post("http://localhost:5000/update", data=json.dumps(student))
+	r = requests.post("http://localhost:5000/update", data=json.dumps(student))
+	print(r.text)
 
 def update_replace_endpoint():
 	student = {}
@@ -39,7 +40,8 @@ def update_replace_endpoint():
 	student["data"] = data
 	student["path"] = "/assessment"
 
-	requests.post("http://localhost:5000/update_replace", data=json.dumps(student))
+	r = requests.post("http://localhost:5000/update_replace", data=json.dumps(student))
+	print(r.text)
 
 
 def get_nodes_endpoint():
