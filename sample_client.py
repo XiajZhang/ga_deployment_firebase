@@ -47,7 +47,6 @@ def get_nodes_endpoint():
 	student["subject_id"] = "p001"
 	student["path"] = "/condition"
 	r = requests.get("http://localhost:5000/get_nodes", params=student)
-	print(student)
 	print(r.text)
 
 
@@ -59,9 +58,9 @@ def delete_nodes_endpoint():
 	print(r.text)
 
 
-# create_endpoint()
+create_endpoint()
 update_nodes_endpoint()
-# update_replace_endpoint()
-# get_nodes_endpoint()
-# delete_nodes_endpoint()
+update_replace_endpoint()
+get_nodes_endpoint()
+delete_nodes_endpoint()
 
