@@ -61,8 +61,8 @@ def delete_nodes_endpoint():
 
 
 create_endpoint()
-update_nodes_endpoint()
-update_replace_endpoint()
-get_nodes_endpoint()
-delete_nodes_endpoint()
+# update_nodes_endpoint()
+# update_replace_endpoint()
+# get_nodes_endpoint()
+# delete_nodes_endpoint()
 

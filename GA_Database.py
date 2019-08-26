@@ -137,17 +137,17 @@ class DB():
 
 
 			curr_keys = self.db.shallow().get().val()
-			if curr_keys == None: 
+			if curr_keys == None or subject_id not in curr_keys: 
 				if path == "/":
 					self.db.child(subject_id).set(data)
 					return "Success", 1
 				else:
 					return "No data in db, use path '/' to create node", -1
 
-			if subject_id not in curr_keys:
-				return "Subject id not present.", -1
+			
 
-						####check if path node reachable
+
+			####check if path node reachable
 
 			data_on_server = dict(self.db.child(subject_id).get().val())
 			node_reachable_bool, leaf_node_ref, data_at_leaf = self.check_if_node_reachable(subject_id, nodes[1:], data_on_server)
