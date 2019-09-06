@@ -1,17 +1,28 @@
 <html>
 <head>
+
 	<title></title>
 
 </head>
 
 <body>
 
-	<form action="/" method="post">
-		<input type="name" name="name">
-		<input type="password" name="pass">
-		<input type="submit" name="submit">
+<script src= "{{ url_for('static', filename='socketio.js') }}"></script>
+<script type="text/javascript" charset="utf-8">
+var namespace = "/stream_word_list";
+var socket = io(namespace);
 
-	</form>
+socket.on('connect', function() {
+	console.log("connected")
+    });
+
+
+socket.on('word_list_stream_to_client', function(message) {
+	console.log(message);
+});
+
+
+</script>
 
 </body>
 

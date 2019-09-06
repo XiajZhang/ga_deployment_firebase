@@ -12,6 +12,8 @@ def create_endpoint():
 							"ppvt": "something", 
 							"targetVocab": "something_new"}
 
+	data["word_list"] = ["abc", "def", "ghi"]
+
 	student["data"] = data
 	student["path"] = "/"
 

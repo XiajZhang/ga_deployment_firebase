@@ -222,20 +222,16 @@ class DB():
 
 
 
-# student = {}
-# student["subject_id"] = "p001"
-# data = {}
-# data["condition"] = "affect"
-# data["assessment"] = {"type": "pre", 
-# 						"date-time":"09/23/2019", 
-# 						"ppvt": "something", 
-# 						"targetVocab": "something_new"}
 
-# student["data"] = data
+	class WordListStream():
+		def __init__(self, db_object, socket_obj):
+			self.db = db_object.db
+			self.socket_object = socket_obj
 
-# db = DB()
-# db.authenticate(get_config_data("cred/config.txt"))
-# print(db.create_nodes("p001", "/ujki", {"yup": {"something": "else"}}))
-# print(db.update_nodes("p001", "/", {"ishaan": "amazing"}))
-# print(db.create_nodes("p001", "/", {"ujki": {"jddn": "ishaan"}}))
-# print(db.get_nodes("p001", "/assessment/ppvt"))
+		def stream_word_list(self):
+			def stream_handler_word_list(message):
+				print(message)
+				self.socket_object.emit("word_list_stream_to_client", message, namespace="/stream_word_list")
+			my_stream = self.db.child("p001").child("word_list").stream(stream_handler_word_list)
+
+

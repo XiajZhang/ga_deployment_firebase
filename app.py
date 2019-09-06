@@ -3,16 +3,20 @@ from GA_Database import *
 import json
 from flask import *
 from time import sleep
+from flask_socketio import SocketIO
 
 def get_config_data(filename):
 	f = open(filename)
 	return json.load(f)
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secret!'
+socketio = SocketIO(app, async_mode="threading")
 
 config = get_config_data("cred/config.txt")
 db = DB()
 db.authenticate(config_data=config)
+
 
 
 @app.route("/")
@@ -94,5 +98,9 @@ def delete_nodes_endpoint():
 
 
 
+word_list_streamer = DB.WordListStream(db, socketio)
+socketio.start_background_task(target=word_list_streamer.stream_word_list)
+
+
 if __name__ == '__main__':
-	app.run(debug=True)
+	socketio.run(app, debug=True)
