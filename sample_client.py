@@ -2,9 +2,9 @@ import requests
 import json
 
 
-def create_endpoint():
+def create_endpoint(subject_id, classroom):
 	student = {}
-	student["subject_id"] = "p001"
+	student["subject_id"] = subject_id
 	data = {}
 	data["condition"] = "affect"
 	data["assessment"] = {"type": "pre", 
@@ -12,7 +12,27 @@ def create_endpoint():
 							"ppvt": "something", 
 							"targetVocab": "something_new"}
 
-	data["word_list"] = ["abc", "def", "ghi"]
+	data["studentInfo"] = [
+          {
+            "name" : "Alex",
+            "sessionCount": 1,
+            "priority": 2,
+            "id": 1,
+            "classRoom": classroom,
+            "wordsLearned":
+            [
+              {"key" : 'Adult', "status": 0},
+              {"key" : 'Aeroplane', "status": 1},
+              {"key" : 'Air', "status": 2}
+            ],
+
+          "booksLearned":
+          [
+            {"key": "The Little Prince by Antoine de Saint-Exupery"},
+            {"key": "Harry Potter by J. K. Rowling"}
+          ]
+        }
+      ]
 
 	student["data"] = data
 	student["path"] = "/"
@@ -62,7 +82,8 @@ def delete_nodes_endpoint():
 	print(r.text)
 
 
-create_endpoint()
+create_endpoint("p001", "A")
+create_endpoint("p002", "B")
 # update_nodes_endpoint()
 # update_replace_endpoint()
 # get_nodes_endpoint()

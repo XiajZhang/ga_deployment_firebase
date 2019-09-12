@@ -4,6 +4,7 @@ import json
 from flask import *
 from time import sleep
 from flask_socketio import SocketIO
+from flask_socketio import join_room, leave_room
 
 def get_config_data(filename):
 	f = open(filename)
@@ -97,10 +98,20 @@ def delete_nodes_endpoint():
 		return Response(message, 400)
 
 
+@socketio.on('join')
+def on_join(data):
+    room = data['room']
+    print(room)
+    join_room(room)
 
-word_list_streamer = DB.WordListStream(db, socketio)
-socketio.start_background_task(target=word_list_streamer.stream_word_list)
 
+@socketio.on('leave')
+def on_leave(data):
+    room = data['room']
+    leave_room(room)
+
+student_info_streamer = DB.StudentInfoStream(db, socketio)
+socketio.start_background_task(target=student_info_streamer.stream_student_info)
 
 if __name__ == '__main__':
 	socketio.run(app, debug=True)

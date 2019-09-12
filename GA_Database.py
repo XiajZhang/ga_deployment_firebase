@@ -223,15 +223,22 @@ class DB():
 
 
 
-	class WordListStream():
+	class StudentInfoStream():
 		def __init__(self, db_object, socket_obj):
 			self.db = db_object.db
 			self.socket_object = socket_obj
 
-		def stream_word_list(self):
-			def stream_handler_word_list(message):
-				print(message)
-				self.socket_object.emit("word_list_stream_to_client", message, namespace="/stream_word_list")
-			my_stream = self.db.child("p001").child("word_list").stream(stream_handler_word_list)
+		def stream_student_info(self):
+			def stream_handler(message):
+				path = message["path"]
+				if "studentInfo" in path:
+					d = {}
+					subject_id = path.split("/")[1]
+					student_info_data = self.db.child(subject_id).child("studentInfo").get().val()
+					d["studentInfo"] = student_info_data
+					room = student_info_data[0]["classRoom"]
+					d["subject_id"] = subject_id
+					self.socket_object.emit("student_info", data=d, room=room)
 
+			my_stream = self.db.stream(stream_handler)
 
