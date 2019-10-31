@@ -103,7 +103,8 @@ class DB():
 
 			data_on_server = dict(self.db.child(subject_id).get().val())
 			node_reachable_bool, leaf_node_ref, data_at_leaf = self.check_if_node_reachable(subject_id, nodes[1:], data_on_server)
-			print(leaf_node_ref.path)
+			print("UPDATING")
+			#print(leaf_node_ref.path)
 
 			if not node_reachable_bool:	
 				return "Invalid path", -1
@@ -135,7 +136,7 @@ class DB():
 
 			###check if subject is present
 
-
+			print("CREATING")
 			curr_keys = self.db.shallow().get().val()
 			if curr_keys == None or subject_id not in curr_keys: 
 				if path == "/":
