@@ -21,14 +21,14 @@ class FireBase_Client():
 					            "id": id,
 					            "classRoom": classroom,
 
-					            "wordsLearned":
-					            ['HERE IS PLACEHOLDER'],
-
 					            "logData":
 					            ['HERE IS PLACEHOLDER'],
 
-					          	"booksLearned":
-					          	['HERE IS PLACEHOLDER']
+					            "wordsLearned":
+					            ['HERE IS PLACEHOLDER'],
+
+					            "progress":
+					            {'fake_session': 'HERE IS PLACEHOLDER'}
 					          }
 					      
 
@@ -67,7 +67,8 @@ class FireBase_Client():
 		student["subject_id"] = subject_id
 		student["path"] = path
 		r = requests.get(self.address + "/get_nodes", params=student)
-		print(r.text)
+		#print(r.text)
+		return r
 
 
 	def delete_nodes_endpoint(self, subject_id, path = '/'):
@@ -86,6 +87,29 @@ class FireBase_Client():
 		data = {}
 		data['logData'] = log_data
 		self.update_nodes_endpoint(subject_id, data, '/studentInfo')
+
+	def add_progress(self, subject_id, session, words, log_data, task_index, missions, target_list, nontarget_list, available_quests):
+		print("ADDDDING PROGRESS")
+		data = self.get_nodes_endpoint(subject_id, '/studentInfo').json()
+		data['wordsLearned'] = words
+		data['logData'] = log_data
+
+		if session not in data['progress']:
+			data['progress'][session] = {}
+
+		data['progress'][session]['task'] = task_index
+		data['progress'][session]['missions'] = missions
+		data['progress'][session]['target'] = target_list
+		data['progress'][session]['nontarget'] = nontarget_list
+		data['progress'][session]['quests'] = available_quests
+
+		data['progress'][session]['task_dict'] = []
+		data['progress'][session]['object_dict'] = []
+
+		print(data)
+
+		self.update_nodes_endpoint(subject_id, data, '/studentInfo')
+
 
 # assessment = {"type": "pre", 
 # 							"date-time":"09/23/2019", 
